@@ -17,7 +17,7 @@ int main()
     glViewport(0, 0, screenWidth, screenHeight);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, screenWidth, 0, screenHeight, -1, 1);
+    glOrtho(0, screenWidth, screenHeight, 0, -1, 1);
     glMatrixMode(GL_MODELVIEW);
 
     float centerX = screenWidth / 2.0f;
@@ -25,17 +25,35 @@ int main()
     float radius = 50.0f;
     int res = 50;
 
+    float velocity[] = {0.0f, 0.0f};
+    float positions[] = {0.0f, 0.0f};
+
+    positions[0] = centerX;
+    positions[1] = screenHeight - radius;
+
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        draw_circle(centerX, centerY, radius, res);
+        draw_circle(positions[0], positions[1], radius, res);
+        glFlush();
 
-        centerY -= 1.0f;
+        printf("Circle position: (%.2f, %.2f)\n", positions[0], positions[1]);
+
+        positions[1] += -9.81f / 20.0f;
+
+        if (positions[1] < radius)
+        {
+            positions[1] = screenHeight - radius;
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    return 0;
 }
 
 GLFWwindow *StartGLFW()
@@ -46,7 +64,7 @@ GLFWwindow *StartGLFW()
         return NULL;
     }
 
-    GLFWwindow *window = glfwCreateWindow(800, 600, "gravity_sim", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(screenWidth, screenHeight, "gravity_sim", NULL, NULL);
 
     return window;
 }
