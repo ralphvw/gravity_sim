@@ -4,8 +4,12 @@
 
 GLFWwindow *StartGLFW();
 void draw_circle(float centerX, float centerY, float radius, int res);
+
 float screenHeight = 600.0f;
 float screenWidth = 800.0f;
+const float gravity = -9.81f;
+const float bounceFactor = 0.8f;
+const float timeStep = 0.0016f;
 
 int main()
 {
@@ -21,31 +25,43 @@ int main()
     glMatrixMode(GL_MODELVIEW);
 
     float centerX = screenWidth / 2.0f;
-    float centerY = screenHeight / 2.0f;
     float radius = 50.0f;
     int res = 50;
 
-    float velocity[] = {0.0f, 0.0f};
-    float positions[] = {0.0f, 0.0f};
+    float velocityY = 0.0f;
+    float positionY = screenHeight - radius;
 
-    positions[0] = centerX;
-    positions[1] = screenHeight - radius;
+    double lastTime = glfwGetTime();
 
     while (!glfwWindowShouldClose(window))
     {
-        glClear(GL_COLOR_BUFFER_BIT);
+        double currentTime = glfwGetTime();
+        double deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
 
-        draw_circle(positions[0], positions[1], radius, res);
-        glFlush();
-
-        printf("Circle position: (%.2f, %.2f)\n", positions[0], positions[1]);
-
-        positions[1] += -9.81f / 20.0f;
-
-        if (positions[1] < radius)
+        if (deltaTime >= timeStep)
         {
-            positions[1] = screenHeight - radius;
+            velocityY += gravity * deltaTime;
+            positionY += velocityY * deltaTime;
+
+            if (positionY < radius)
+            {
+                positionY = radius;
+                velocityY = -velocityY * bounceFactor;
+            }
+
+            if (positionY > screenHeight - radius)
+            {
+                positionY = screenHeight - radius;
+                velocityY = -velocityY * bounceFactor;
+            }
+
+            printf("Position: %.2f | Velocity: %.2f | DeltaTime: %.4f\n", positionY, velocityY, deltaTime);
         }
+
+        glClear(GL_COLOR_BUFFER_BIT);
+        draw_circle(centerX, positionY, radius, res);
+        glFlush();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -60,12 +76,11 @@ GLFWwindow *StartGLFW()
 {
     if (!glfwInit())
     {
-        fprintf(stderr, "Failed to init");
+        fprintf(stderr, "Failed to init\n");
         return NULL;
     }
 
     GLFWwindow *window = glfwCreateWindow(screenWidth, screenHeight, "gravity_sim", NULL, NULL);
-
     return window;
 }
 
@@ -76,7 +91,7 @@ void draw_circle(float centerX, float centerY, float radius, int res)
 
     for (int i = 0; i <= res; ++i)
     {
-        float angle = 2.0f * 3.141592653589f * ((float)i / (float)res);
+        float angle = 2.0f * M_PI * ((float)i / (float)res);
         float x = centerX + cos(angle) * radius;
         float y = centerY + sin(angle) * radius;
 
