@@ -1,0 +1,23 @@
+# Compiler
+CXX = clang++
+CXXFLAGS = -std=c++17 -Wall -Wextra
+
+# Paths
+GLFW_PATH = /opt/homebrew/opt/glfw
+INCLUDE_PATH = -I$(GLFW_PATH)/include
+LIB_PATH = -L$(GLFW_PATH)/lib
+
+# Libraries
+LIBS = -lglfw -framework OpenGL
+
+# Target
+TARGET = gravity_sim
+SRC = sim.c
+
+all: $(TARGET)
+
+$(TARGET): $(SRC)
+	$(CXX) $(CXXFLAGS) $(INCLUDE_PATH) $(LIB_PATH) $(SRC) -o $(TARGET) $(LIBS)
+
+clean:
+	rm -f $(TARGET)
