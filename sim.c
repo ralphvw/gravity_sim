@@ -7,9 +7,6 @@ void draw_circle(float centerX, float centerY, float radius, int res);
 
 float screenHeight = 600.0f;
 float screenWidth = 800.0f;
-const float gravity = -9.81f;
-const float bounceFactor = 0.8f;
-const float timeStep = 0.0016f;
 
 int main()
 {
@@ -27,40 +24,24 @@ int main()
     float centerX = screenWidth / 2.0f;
     float radius = 50.0f;
     int res = 50;
+    float yStart = screenHeight - radius;
 
-    float velocityY = 0.0f;
-    float positionY = screenHeight - radius;
+    float positions[] = {400.0f, yStart};
 
     double lastTime = glfwGetTime();
 
     while (!glfwWindowShouldClose(window))
     {
-        double currentTime = glfwGetTime();
-        double deltaTime = currentTime - lastTime;
-        lastTime = currentTime;
-
-        if (deltaTime >= timeStep)
-        {
-            velocityY += gravity * deltaTime;
-            positionY += velocityY * deltaTime;
-
-            if (positionY < radius)
-            {
-                positionY = radius;
-                velocityY = -velocityY * bounceFactor;
-            }
-
-            if (positionY > screenHeight - radius)
-            {
-                positionY = screenHeight - radius;
-                velocityY = -velocityY * bounceFactor;
-            }
-
-            printf("Position: %.2f | Velocity: %.2f | DeltaTime: %.4f\n", positionY, velocityY, deltaTime);
-        }
-
         glClear(GL_COLOR_BUFFER_BIT);
-        draw_circle(centerX, positionY, radius, res);
+        draw_circle(positions[0], positions[1], radius, res);
+        positions[1] -= 0.3f;
+
+        printf("Y: %f\n", positions[1]);
+
+        if (positions[1] <= radius)
+        {
+            positions[1] = yStart;
+        }
         glFlush();
 
         glfwSwapBuffers(window);
