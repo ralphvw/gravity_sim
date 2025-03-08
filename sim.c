@@ -27,6 +27,7 @@ int main()
     float yStart = screenHeight - radius;
 
     float positions[] = {400.0f, yStart};
+    float velocity[] = {0.0f, 0.0f};
 
     double lastTime = glfwGetTime();
 
@@ -34,13 +35,21 @@ int main()
     {
         glClear(GL_COLOR_BUFFER_BIT);
         draw_circle(positions[0], positions[1], radius, res);
-        positions[1] -= 0.3f;
+        positions[0] += velocity[0];
+        positions[1] += velocity[1];
+
+        velocity[1] += -9.81 / 2000.0f;
 
         printf("Y: %f\n", positions[1]);
 
-        if (positions[1] <= radius)
+        if (positions[1] < 0 || positions[1] > screenHeight)
         {
-            positions[1] = yStart;
+            velocity[1] *= -0.95;
+        }
+
+        if (positions[0] <= radius || positions[0] > screenHeight)
+        {
+            velocity[0] *= -0.95;
         }
         glFlush();
 
